@@ -37,7 +37,7 @@ class ConsoleApp(tk.Tk):
         self.entry2 = tk.Entry(button_frame)
         self.entry2.grid(row=2, column=1, padx=5, pady=5)
 
-        console_frame = tk.Frame(self, bg="#F0F0F0")  # Light gray background for the console frame
+        console_frame = tk.Frame(self, bg="#F0F0F0")
         console_frame.pack(fill=tk.BOTH, expand=True)
 
         self.console_text = scrolledtext.ScrolledText(console_frame, wrap=tk.WORD, font=("Arial", 12), bg="#F0F0F0", fg="#333333")  # Dark gray text on light gray background
@@ -58,9 +58,10 @@ class ConsoleApp(tk.Tk):
     def button_help_action(self):
         print(">>>", end=" ")
         self.print_with_color("Help\n", "blue")
-        print('''List - List all clients with files
- Ping client_addr - Live check client at client_addr
- Discover client_addr - Discover files in the local repository of the client at client_addr
+        print('''list - List all client with files
+ping client_addr - Live check client at client_addr
+discover client_addr - Discover files in local repository of client at client_addr
+quit - Shut down server socket, use this command before closing the terminal
 ''')
         
     def button_list_action(self):
@@ -189,23 +190,12 @@ class Server:
             my_terminal.console_text.insert("end", f"\nFiles on {client_addr}: {list_of_files}\n>>>")
             my_terminal.console_text.mark_set("input", "insert")
 
-        def print_help():
-            help_str = """
-help - Print all commands and usage
-list - List all client with files
-ping client_addr - Live check client at client_addr
-discover client_addr - Discover files in local repository of client at client_addr
-quit - Shut down server socket, use this command before closing the terminal
->>> 
-            """
-            my_terminal.console_text.insert("end", f"{help_str}")
-            my_terminal.console_text.mark_set("input", "insert")
 
         command = my_terminal.console_text.get("end-2l", "end-1c")
         start_index = next((i for i, char in enumerate(command) if char.isalpha()), None)
         if start_index is not None:
             command = command[start_index:]
-        print(str(command))
+        # print(str(command))
         
         self.command_for_client["has_command"] = True
         args_list = command.split()

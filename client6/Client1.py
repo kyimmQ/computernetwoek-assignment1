@@ -22,23 +22,22 @@ class ConsoleApp(tk.Tk):
         button_frame = tk.Frame(self, bg="#D0D0D0")
         button_frame.pack(side=tk.TOP, fill=tk.X)
 
-        button_list = tk.Button(button_frame, text="List", command=self.button_list_action, bg="#90EE90")
-        button_list.grid(row=0, column=0, padx=5, pady=5)
-
         button_help = tk.Button(button_frame, text="Help", command=self.button_help_action, bg="#90EE90")
-        button_help.grid(row=0, column=1, padx=5, pady=5)
+        button_help.grid(row=0, column=0, padx=5, pady=5)
 
-        button1 = tk.Button(button_frame, text="Discover", command=self.button_discover_action, bg="#FFD700")
+        button1 = tk.Button(button_frame, text="Publish", command=self.button_publish_action, bg="#FFD700")
         button1.grid(row=1, column=0, padx=5, pady=5)
         self.entry1 = tk.Entry(button_frame)
         self.entry1.grid(row=1, column=1, padx=5, pady=5)
-
-        button2 = tk.Button(button_frame, text="Ping", command=self.button_ping_action, bg="#FFD700")
-        button2.grid(row=2, column=0, padx=5, pady=5)
         self.entry2 = tk.Entry(button_frame)
-        self.entry2.grid(row=2, column=1, padx=5, pady=5)
+        self.entry2.grid(row=1, column=2, padx=5, pady=5)
 
-        console_frame = tk.Frame(self, bg="#F0F0F0")  # Light gray background for the console frame
+        button2 = tk.Button(button_frame, text="Fetch", command=self.button_fetch_action, bg="#FFD700")
+        button2.grid(row=2, column=0, padx=5, pady=5)
+        self.entry3 = tk.Entry(button_frame)
+        self.entry3.grid(row=2, column=1, padx=5, pady=5)
+
+        console_frame = tk.Frame(self, bg="#F0F0F0")
         console_frame.pack(fill=tk.BOTH, expand=True)
 
         self.console_text = scrolledtext.ScrolledText(console_frame, wrap=tk.WORD, font=("Arial", 12), bg="#F0F0F0", fg="#333333")  # Dark gray text on light gray background
@@ -59,32 +58,33 @@ class ConsoleApp(tk.Tk):
     def button_help_action(self):
         print(">>>", end=" ")
         self.print_with_color("Help\n", "blue")
-        print('''List - List all clients with files
- Ping client_addr - Live check client at client_addr
- Discover client_addr - Discover files in the local repository of the client at client_addr
+        print('''fetch fname - Send a fetch request to server to fetch file with name at fname
+publish path_to_file fname - Make a copy of the file at path_to_file to the local repository\nand send that information to server
+quit - Shut down client socket.
 ''')
         
     def button_list_action(self):
         print(">>>", end=" ")
         self.print_with_color("list", "blue")
 
-    def button_discover_action(self):
+    def button_publish_action(self):
         entry1_text = self.entry1.get()
+        entry2_text = self.entry2.get()
         if entry1_text == "":
             print(">>>", end=" ")
-            self.print_with_color("discover: Please enter a client_address!\n", "red")
+            self.print_with_color("publish: Please enter a lname and a fname!\n", "red")
         else:
             print(">>> ")
-            self.print_with_color("discover " + entry1_text, "blue")
+            self.print_with_color("publish " + entry1_text + " " + entry2_text, "blue")
 
-    def button_ping_action(self):
-        entry2_text = self.entry2.get()
-        if entry2_text == "":
+    def button_fetch_action(self):
+        entry3_text = self.entry3.get()
+        if entry3_text == "":
             print(">>>", end=" ")
-            self.print_with_color("ping: Please enter a client_address!\n", "red")
+            self.print_with_color("fetch: Please enter a fname!\n", "red")
         else:
             print(">>> ")
-            self.print_with_color("ping " + entry2_text, "blue")
+            self.print_with_color("fetch " + entry3_text, "blue")
 
     def print_with_color(self, msg, color: str):
         self.console_text.insert(tk.END, msg, color)
@@ -125,9 +125,8 @@ class Client:
         return os.listdir(self.local_dir)
         
     def command_handler(self, my_terminal):
-        
             try:
-                command = my_terminal.get('input', 'end')
+                command = my_terminal.console_text.get("end-2l", "end-1c")
                 
                 if self.is_choosing:
                     choice = self.other_client[int(command) - 1]
@@ -157,21 +156,13 @@ class Client:
                     my_terminal.console_text.insert('end', f'\nFetching completed!!\n>>>')
                     my_terminal.console_text.mark_set('input', 'insert')
                     # print(action_complete)
-                else:    
+                else:
+                    start_index = next((i for i, char in enumerate(command) if char.isalpha()), None)
+                    if start_index is not None:
+                        command = command[start_index:]
+                    # print(str(command))
                     args_list = command.split()
                     match args_list[0]:
-                        case 'help':
-                            if len(args_list) == 1:
-                                help_str ='''help - Print all commands and usage
-fetch fname - Send a fetch request to server to fetch file with name at fname
-publish path_to_file fname - Make a copy of the file at path_to_file to the local repository\nand send that information to server
-quit - Shut down client socket.
->>> '''                          
-                                self.insert('end', f'{help_str}')
-                                my_terminal.console_text.mark_set('input', 'insert')
-                            else:
-                                my_terminal.console_text.insert('end', f'\nNot a valid command!\nhelp requires no arguments\n>>>')
-                                my_terminal.console_text.mark_set('input', 'insert')
                         case 'fetch':
                             if len(args_list) == 2:
                                 self.file_name  = args_list[1]
