@@ -112,7 +112,7 @@ quit - Shut down client socket.
                     
     def server_handler(self, my_terminal):
         # connect to the server
-        host = "10.128.84.222" # localhost
+        host = "172.20.46.71" # localhost
         port = 65432       # The same as server uses
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.connect((host,port))

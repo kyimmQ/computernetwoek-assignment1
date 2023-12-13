@@ -228,7 +228,7 @@ quit - Shut down server socket, use this command before closing the terminal
     def main(self):
         # creating & handling server
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_ip = "10.128.84.222"
+        server_ip = "172.20.46.71"
         server_port = 65432
         server_socket.bind((server_ip, server_port))
         server_socket.listen(5)
