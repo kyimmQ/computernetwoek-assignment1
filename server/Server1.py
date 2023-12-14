@@ -64,30 +64,37 @@ ping client_addr - Live check client at client_addr
 discover client_addr - Discover files in local repository of client at client_addr
 quit - Shut down server socket, use this command before closing the terminal
 ''')
+        self.console_text.mark_set('insert', 'end')
         
     def button_list_action(self):
         # self.print_with_color(">>> ", "black")
         self.print_with_color("list", "blue")
+        self.console_text.mark_set('insert', 'end')
 
     def button_discover_action(self):
         entry_discover_text = self.entry_discover.get()
         if entry_discover_text == "":
             # self.print_with_color(">>> ", "black")
             self.print_with_color("discover: Please enter a client_address!\n", "red")
+            self.console_text.mark_set('insert', 'end')
         else:
             self.print_with_color("discover " + entry_discover_text, "blue")
+            self.console_text.mark_set('insert', 'end')
 
     def button_ping_action(self):
         entry_ping_text = self.entry_ping.get()
         if entry_ping_text == "":
             # self.print_with_color(">>> ", "black")
             self.print_with_color("ping: Please enter a client_address!\n", "red")
+            self.console_text.mark_set('insert', 'end')
         else:
             self.print_with_color("ping " + entry_ping_text, "blue")
+            self.console_text.mark_set('insert', 'end')
 
     def print_with_color(self, msg, color: str):
         self.console_text.insert(tk.END, msg, color)
         self.console_text.see(tk.END)
+        self.console_text.mark_set('insert', 'end')
 
 
 class Server:

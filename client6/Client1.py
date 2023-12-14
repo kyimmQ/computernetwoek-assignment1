@@ -61,6 +61,7 @@ class ConsoleAppClient(tk.Tk):
 publish path_to_file fname - Make a copy of the file at path_to_file to the local repository\nand send that information to server
 quit - Shut down client socket.
 ''')
+        self.console_text.mark_set('insert', 'end')
 
     def button_publish_action(self):
         entry_publish_lname_text = self.entry_publish_lname.get()
@@ -68,22 +69,27 @@ quit - Shut down client socket.
         if entry_publish_lname_text == "":
             # print(">>>", end=" ")
             self.print_with_color("publish: Please enter a lname and a fname!\n", "red")
+            self.console_text.mark_set('insert', 'end')
         else:
             # print(">>> ")
             self.print_with_color("publish " + entry_publish_lname_text + " " + entry_publish_fname_text, "blue")
+            self.console_text.mark_set('insert', 'end')
 
     def button_fetch_action(self):
         entry_fetch_text = self.entry_fetch.get()
         if entry_fetch_text == "":
             # print(">>>", end=" ")
             self.print_with_color("fetch: Please enter a fname!\n", "red")
+            self.console_text.mark_set('insert', 'end')
         else:
             # print(">>> ")
             self.print_with_color("fetch " + entry_fetch_text, "blue")
+            self.console_text.mark_set('insert', 'end')
 
     def print_with_color(self, msg, color: str):
         self.console_text.insert(tk.END, msg, color)
         self.console_text.see(tk.END)
+        self.console_text.mark_set('insert', 'end')
 
 
 action_complete = '-------------------------------------------------------'
