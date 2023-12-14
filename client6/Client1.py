@@ -6,12 +6,14 @@ import shutil
 import tkinter as tk
 from tkinter import scrolledtext
 import sys
+sys.path.append('../')
+from console_text_redirector import ConsoleTextRedirector
 
-class ConsoleApp(tk.Tk):
+class ConsoleAppClient(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("File Transfer Cliont")
+        self.title("File Transfer Client")
         self.geometry("600x400")
 
         label_app = tk.Label(self, text="File-sharing application", font=("Arial", 16, "bold"), fg="blue", bg="#F0F0F0")
@@ -25,17 +27,17 @@ class ConsoleApp(tk.Tk):
         button_help = tk.Button(button_frame, text="Help", command=self.button_help_action, bg="#90EE90")
         button_help.grid(row=0, column=0, padx=5, pady=5)
 
-        button1 = tk.Button(button_frame, text="Publish", command=self.button_publish_action, bg="#FFD700")
-        button1.grid(row=1, column=0, padx=5, pady=5)
-        self.entry1 = tk.Entry(button_frame)
-        self.entry1.grid(row=1, column=1, padx=5, pady=5)
-        self.entry2 = tk.Entry(button_frame)
-        self.entry2.grid(row=1, column=2, padx=5, pady=5)
+        button_publish = tk.Button(button_frame, text="Publish", command=self.button_publish_action, bg="#FFD700")
+        button_publish.grid(row=1, column=0, padx=5, pady=5)
+        self.entry_publish_lname = tk.Entry(button_frame)
+        self.entry_publish_lname.grid(row=1, column=1, padx=5, pady=5)
+        self.entry_publish_fname = tk.Entry(button_frame)
+        self.entry_publish_fname.grid(row=1, column=2, padx=5, pady=5)
 
-        button2 = tk.Button(button_frame, text="Fetch", command=self.button_fetch_action, bg="#FFD700")
-        button2.grid(row=2, column=0, padx=5, pady=5)
-        self.entry3 = tk.Entry(button_frame)
-        self.entry3.grid(row=2, column=1, padx=5, pady=5)
+        button_fetch = tk.Button(button_frame, text="Fetch", command=self.button_fetch_action, bg="#FFD700")
+        button_fetch.grid(row=2, column=0, padx=5, pady=5)
+        self.entry_fetch = tk.Entry(button_frame)
+        self.entry_fetch.grid(row=2, column=1, padx=5, pady=5)
 
         console_frame = tk.Frame(self, bg="#F0F0F0")
         console_frame.pack(fill=tk.BOTH, expand=True)
@@ -52,62 +54,36 @@ class ConsoleApp(tk.Tk):
         self.console_text.tag_configure("red", foreground="red")
         self.console_text.tag_configure("blue", foreground="blue")
 
-        self.console_text.bind("<Control-c>", self.copy)
-        self.console_text.bind("<Control-v>", self.paste)
-
     def button_help_action(self):
-        print(">>>", end=" ")
+        # print(">>>", end=" ")
         self.print_with_color("Help\n", "blue")
         print('''fetch fname - Send a fetch request to server to fetch file with name at fname
 publish path_to_file fname - Make a copy of the file at path_to_file to the local repository\nand send that information to server
 quit - Shut down client socket.
 ''')
-        
-    def button_list_action(self):
-        print(">>>", end=" ")
-        self.print_with_color("list", "blue")
 
     def button_publish_action(self):
-        entry1_text = self.entry1.get()
-        entry2_text = self.entry2.get()
-        if entry1_text == "":
-            print(">>>", end=" ")
+        entry_publish_lname_text = self.entry_publish_lname.get()
+        entry_publish_fname_text = self.entry_publish_fname.get()
+        if entry_publish_lname_text == "":
+            # print(">>>", end=" ")
             self.print_with_color("publish: Please enter a lname and a fname!\n", "red")
         else:
-            print(">>> ")
-            self.print_with_color("publish " + entry1_text + " " + entry2_text, "blue")
+            # print(">>> ")
+            self.print_with_color("publish " + entry_publish_lname_text + " " + entry_publish_fname_text, "blue")
 
     def button_fetch_action(self):
-        entry3_text = self.entry3.get()
-        if entry3_text == "":
-            print(">>>", end=" ")
+        entry_fetch_text = self.entry_fetch.get()
+        if entry_fetch_text == "":
+            # print(">>>", end=" ")
             self.print_with_color("fetch: Please enter a fname!\n", "red")
         else:
-            print(">>> ")
-            self.print_with_color("fetch " + entry3_text, "blue")
+            # print(">>> ")
+            self.print_with_color("fetch " + entry_fetch_text, "blue")
 
     def print_with_color(self, msg, color: str):
         self.console_text.insert(tk.END, msg, color)
-
-    def copy(self, event):
-        text = self.console_text.get(tk.SEL_FIRST, tk.SEL_LAST)
-        if text:
-            self.clipboard_clear()
-            self.clipboard_append(text)
-
-    def paste(self, event):
-        text = self.clipboard_get()
-        self.console_text.insert(tk.INSERT, text)
-
-class ConsoleTextRedirector:
-    def __init__(self, console_text_widget):
-        self.console_text_widget = console_text_widget
-
-    def write(self, msg):
-        self.console_text_widget.insert(tk.END, msg)
-
-    def flush(self):
-        pass
+        self.console_text.see(tk.END)
 
 
 action_complete = '-------------------------------------------------------'
@@ -149,11 +125,11 @@ class Client:
                         
                     except Exception as e:
                         # print(f'Error while fetching: {e}')
-                        my_terminal.console_text.insert('end', f'\nError while fetching: {e}\n>>>')
+                        my_terminal.console_text.insert('end', f'Error while fetching: {e}\n\n')
                         my_terminal.console_text.mark_set('input', 'insert')
                     self.is_choosing = False
                     # print("Fetching completed!!")
-                    my_terminal.console_text.insert('end', f'\nFetching completed!!\n>>>')
+                    my_terminal.console_text.insert('end', f'Fetching completed!!\n\n')
                     my_terminal.console_text.mark_set('input', 'insert')
                     # print(action_complete)
                 else:
@@ -167,12 +143,12 @@ class Client:
                             if len(args_list) == 2:
                                 self.file_name  = args_list[1]
                                 if self.file_name in self.get_files_name(): 
-                                    my_terminal.console_text.insert('end', f'\nFile already exists.\n>>>')
+                                    my_terminal.console_text.insert('end', f'File already exists.\n\n')
                                     my_terminal.console_text.mark_set('input', 'insert')
                                     return 'break'
                                 self.server_socket.send(pickle.dumps(f'fetch {self.file_name}'))
                             else:
-                                my_terminal.console_text.insert('end', f'\nNot a valid command!\nfetch requires one argument\n>>>')
+                                my_terminal.console_text.insert('end', f'Not a valid command!\nfetch requires one argument\n\n')
                                 my_terminal.console_text.mark_set('input', 'insert')
                         case 'publish':
                             if len(args_list) == 3: 
@@ -182,11 +158,11 @@ class Client:
                                 shutil.copyfile(file_path, dest)
                                 self.server_socket.send(pickle.dumps(f'publish {file_name}'))
                             else:
-                                my_terminal.console_text.insert('end', f'\nNot a valid command!\npublish requires two arguments\n>>>')
+                                my_terminal.console_text.insert('end', f'Not a valid command!\npublish requires two arguments\n\n')
                                 my_terminal.console_text.mark_set('input', 'insert')
                         case 'quit':
                             if len(args_list) == 1:
-                                my_terminal.console_text.insert('end', f'\nClosing client socket!\n>>>')
+                                my_terminal.console_text.insert('end', f'Closing client socket!\n\n')
                                 my_terminal.console_text.mark_set('input', 'insert')
                                 if self.socket_for_upload: self.socket_for_upload.close()
                                 self.server_socket.send(pickle.dumps('quit'))
@@ -195,13 +171,13 @@ class Client:
                                 
                                 return 'break'
                             else:
-                                my_terminal.console_text.insert('end', f'\nNot a valid command!\nquit requires no arguments\n>>>')
+                                my_terminal.console_text.insert('end', f'Not a valid command!\nquit requires no arguments\n\n')
                                 my_terminal.console_text.mark_set('input', 'insert')
                         case _:
-                            my_terminal.console_text.insert('end', f'\nNot a valid command!\n>>>')
+                            my_terminal.console_text.insert('end', f'Not a valid command!\n\n')
                             my_terminal.console_text.mark_set('input', 'insert')
             except Exception as e: 
-                my_terminal.console_text.insert('end', f'\ncommand_handler stop\n>>>')
+                my_terminal.console_text.insert('end', f'command_handler stop\n\n')
                 my_terminal.console_text.mark_set('input', 'insert')
                 return 'break'
                     
@@ -213,7 +189,7 @@ class Client:
         self.server_socket.connect((host,port))
         self.server_socket.send(pickle.dumps(self.get_files_name()))
         self.my_addr = pickle.loads(self.server_socket.recv(1024))
-        my_terminal.console_text.insert('end', f'\nServer successfully registered you at {self.my_addr[0]}:{self.my_addr[1]}\n>>>')
+        my_terminal.console_text.insert('end', f'Server successfully registered you at {self.my_addr[0]}:{self.my_addr[1]}\n\n')
         my_terminal.console_text.mark_set('input', 'insert')
         # listen for server msg
         while True:
@@ -226,22 +202,22 @@ class Client:
                         case 'discover':
                             self.server_socket.send(pickle.dumps(self.get_files_name()))
                         case 'quit':
-                            my_terminal.console_text.insert('end', f'\nServer is down!!\n>>>')
+                            my_terminal.console_text.insert('end', f'Server is down!!\n\n')
                             my_terminal.console_text.mark_set('input', 'insert')
                 elif type(msg) is list: #when msg is a list, then the server is responding to a fetch command from the client
                     if len(msg) == 0: 
-                        my_terminal.console_text.insert('end', f'\nFile not found!!\n>>>')
+                        my_terminal.console_text.insert('end', f'File not found!!\n\n')
                         my_terminal.console_text.mark_set('input', 'insert')
                         continue
                     print_str = ''
                     for i in range(len(msg)):
                         print_str += f'{i + 1}: {msg[i]}\n'
-                    my_terminal.console_text.insert('end', f'\n{print_str}>>>')
+                    my_terminal.console_text.insert('end', f'\n{print_str}')
                     my_terminal.console_text.mark_set('input', 'insert')
                     self.is_choosing = True
                     self.other_client = msg
             except Exception as e:
-                my_terminal.console_text.insert('end', f'\nserver_handler stop!!\n>>>')
+                my_terminal.console_text.insert('end', f'\nserver_handler stop!!\n\n')
                 my_terminal.console_text.mark_set('input', 'insert')
                 return
             
@@ -250,7 +226,7 @@ class Client:
         self.socket_for_upload = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket_for_upload.bind((self.my_addr[0],self.my_addr[1]+1))
         self.socket_for_upload.listen(5)
-        my_terminal.console_text.insert('end', f'\nListening on {self.my_addr[0]}:{self.my_addr[1]+1}\n>>>')
+        my_terminal.console_text.insert('end', f'Listening on {self.my_addr[0]}:{self.my_addr[1]+1}\n\n')
         my_terminal.console_text.mark_set('input', 'insert')
         def req_handler(req_socket):
             # handle send
@@ -272,17 +248,17 @@ class Client:
         while True:
             try:
                 req_socket, req_addr = self.socket_for_upload.accept()
-                my_terminal.console_text.insert('end', f'\nAccepted connection from {req_addr[0]}:{req_addr[1]}\n>>>')
+                my_terminal.console_text.insert('end', f'Accepted connection from {req_addr[0]}:{req_addr[1]}\n\n')
                 my_terminal.console_text.mark_set('input', 'insert')
                 threading.Thread(target=req_handler, args=[req_socket]).start()
             except Exception as e:
-                my_terminal.console_text.insert('end', f'\nreq_listener stop!!\n>>>')
+                my_terminal.console_text.insert('end', f'req_listener stop!!\n\n')
                 my_terminal.console_text.mark_set('input', 'insert')
                 # print(e)
                 return
             
     def main(self):
-        my_terminal = ConsoleApp()
+        my_terminal = ConsoleAppClient()
         my_terminal.title("Client terminal")
         my_terminal.bind("<Return>", lambda event, my_terminal = my_terminal: self.command_handler(my_terminal))
         
